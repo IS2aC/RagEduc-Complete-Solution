@@ -1,5 +1,9 @@
 from fastapi import FastAPI, UploadFile, File, Form
 from minio import Minio
+from datetime import datetime
+from utils import LoggingLogicFunctions as llf
+from utils import DocEduc
+from utils import BacklogAction
 
 app = FastAPI()
 
@@ -27,6 +31,16 @@ async def upload_document(
         length=-1,
         part_size=10 * 1024 * 1024,
     )
+
+
+    # Recuperation du chemin du dernier fichier inserer
+    minio_path = f"{BUCKET}/{file.filename}"
+    # Creation de l'element DocEduc pour les besoins du logging
+    doc =  DocEduc(course, description, path=minio_path)
+    #logging 
+    llf.acting_backlog(document= doc, action = BacklogAction.ADD.value)
+
+
     return {"status": "ok", "file": file.filename}
 
 
