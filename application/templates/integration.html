@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RAG Education - Intégration</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #4CAF50;
+            --primary-dark: #45a049;
+            --secondary: #2196F3;
+            --danger: #f44336;
+            --dark: #2c3e50;
+            --light: #ecf0f1;
+            --border: #ddd;
+            --shadow: rgba(0, 0, 0, 0.1);
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .header {
+            background: white;
+            padding: 25px 30px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px var(--shadow);
+            margin-bottom: 30px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            color: var(--dark);
+            font-size: 28px;
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .header h1::before {
+            content: "📚";
+            font-size: 36px;
+        }
+
+        .nav-tabs {
+            display: flex;
+            gap: 10px;
+        }
+
+        .nav-tabs a {
+            padding: 12px 24px;
+            background: var(--light);
+            color: var(--dark);
+            text-decoration: none;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .nav-tabs a:hover, .nav-tabs a.active {
+            background: var(--primary);
+            color: white;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(76, 175, 80, 0.3);
+        }
+
+        .card {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px var(--shadow);
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .card-header {
+            text-align: center;
+            margin-bottom: 35px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid var(--light);
+        }
+
+        .card-header h2 {
+            color: var(--dark);
+            font-size: 26px;
+            margin-bottom: 10px;
+        }
+
+        .card-header p {
+            color: #666;
+            font-size: 14px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 15px;
+        }
+
+        .form-group label .required {
+            color: var(--danger);
+            margin-left: 3px;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid var(--border);
+            border-radius: 10px;
+            font-size: 15px;
+            transition: all 0.3s;
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 4px rgba(76, 175, 80, 0.1);
+        }
+
+        textarea.form-control {
+            resize: vertical;
+            min-height: 120px;
+        }
+
+        .file-upload-wrapper {
+            position: relative;
+        }
+
+        .file-upload {
+            border: 3px dashed var(--border);
+            border-radius: 12px;
+            padding: 50px 30px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+        }
+
+        .file-upload:hover {
+            border-color: var(--primary);
+            background: linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(76, 175, 80, 0.1) 100%);
+            transform: translateY(-2px);
+        }
+
+        .file-upload.dragover {
+            border-color: var(--primary);
+            background: rgba(76, 175, 80, 0.1);
+            transform: scale(1.02);
+        }
+
+        .file-upload input[type="file"] {
+            display: none;
+        }
+
+        .file-icon {
+            font-size: 64px;
+            margin-bottom: 15px;
+            display: block;
+        }
+
+        .file-upload-text {
+            color: var(--dark);
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 8px;
+        }
+
+        .file-upload-hint {
+            color: #999;
+            font-size: 13px;
+        }
+
+        .file-selected {
+            margin-top: 15px;
+            padding: 12px 16px;
+            background: #e8f5e9;
+            border-radius: 8px;
+            display: none;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .file-selected.show {
+            display: flex;
+        }
+
+        .file-selected-icon {
+            font-size: 24px;
+        }
+
+        .file-selected-info {
+            flex: 1;
+        }
+
+        .file-selected-name {
+            color: var(--dark);
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        .file-selected-size {
+            color: #666;
+            font-size: 12px;
+            margin-top: 2px;
+        }
+
+        .file-remove {
+            background: var(--danger);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 12px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .file-remove:hover {
+            background: #d32f2f;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 16px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 17px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.3s;
+            margin-top: 30px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .btn-submit:hover:not(:disabled) {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-submit:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        .alert {
+            padding: 15px 20px;
+            border-radius: 8px;
+            margin-bottom: 25px;
+            display: none;
+            animation: slideDown 0.3s ease;
+        }
+
+        .alert.show {
+            display: block;
+        }
+
+        .alert-success {
+            background: #d4edda;
+            color: #155724;
+            border-left: 4px solid #28a745;
+        }
+
+        .alert-error {
+            background: #f8d7da;
+            color: #721c24;
+            border-left: 4px solid #dc3545;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .loading-overlay.show {
+            display: flex;
+        }
+
+        .loading-spinner {
+            background: white;
+            padding: 40px;
+            border-radius: 15px;
+            text-align: center;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 5px solid var(--light);
+            border-top-color: var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .form-hint {
+            display: block;
+            color: #666;
+            font-size: 13px;
+            margin-top: 6px;
+            font-weight: normal;
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                flex-direction: column;
+                gap: 20px;
+            }
+
+            .nav-tabs {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .card {
+                padding: 25px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>RAG Education System</h1>
+            <nav class="nav-tabs">
+                <a href="/admin">Dashboard</a>
+                <a href="/admin_integration" class="active">Intégration</a>
+            </nav>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>📤 Formulaire d'Intégration de Document</h2>
+                <p>Ajoutez un nouveau document éducatif à la base de connaissances</p>
+            </div>
+
+            <div id="alertContainer"></div>
+
+            <form id="uploadForm">
+                <div class="form-group">
+                    <label for="course">
+                        Nom du cours
+                        <span class="required">*</span>
+                        <span class="form-hint">Ex: Mathématique MPSI, Physique Chimie 1ere C</span>
+                    </label>
+                    <input 
+                        type="text" 
+                        id="course" 
+                        name="course" 
+                        class="form-control" 
+                        placeholder="Entrez le nom du cours"
+                        required
+                    >
+                </div>
+
+                <div class="form-group">
+                    <label for="description">
+                        Description
+                        <span class="required">*</span>
+                        <span class="form-hint">Décrivez brièvement le contenu du document</span>
+                    </label>
+                    <textarea 
+                        id="description" 
+                        name="description" 
+                        class="form-control" 
+                        placeholder="Ex: Cours portant sur les fondamentaux de la thermodynamique"
+                        required
+                    ></textarea>
+                </div>
+
+                <div class="form-group">
+                    <label>
+                        Fichier
+                        <span class="required">*</span>
+                        <span class="form-hint">PDF, DOCX, TXT - Taille max: 50MB</span>
+                    </label>
+                    <div class="file-upload-wrapper">
+                        <label for="file" class="file-upload" id="fileUploadArea">
+                            <span class="file-icon">📁</span>
+                            <div class="file-upload-text">Cliquez pour sélectionner ou glissez un fichier</div>
+                            <div class="file-upload-hint">Formats acceptés: PDF, DOCX, TXT</div>
+                            <input 
+                                type="file" 
+                                id="file" 
+                                name="file" 
+                                accept=".pdf,.docx,.txt"
+                                required
+                            >
+                        </label>
+                        <div class="file-selected" id="fileSelected">
+                            <span class="file-selected-icon">📄</span>
+                            <div class="file-selected-info">
+                                <div class="file-selected-name" id="fileName"></div>
+                                <div class="file-selected-size" id="fileSize"></div>
+                            </div>
+                            <button type="button" class="file-remove" id="fileRemove">Retirer</button>
+                        </div>
+                    </div>
+                </div>
+
+                <button type="submit" class="btn-submit" id="submitBtn">
+                    Valider et Intégrer le Document
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="loading-spinner">
+            <div class="spinner"></div>
+            <div style="color: var(--dark); font-weight: 600;">Téléchargement en cours...</div>
+        </div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('file');
+        const fileUploadArea = document.getElementById('fileUploadArea');
+        const fileSelected = document.getElementById('fileSelected');
+        const fileName = document.getElementById('fileName');
+        const fileSize = document.getElementById('fileSize');
+        const fileRemove = document.getElementById('fileRemove');
+        const uploadForm = document.getElementById('uploadForm');
+        const loadingOverlay = document.getElementById('loadingOverlay');
+        const alertContainer = document.getElementById('alertContainer');
+
+        // File input change
+        fileInput.addEventListener('change', function(e) {
+            handleFileSelect(e.target.files[0]);
+        });
+
+        // Drag and drop
+        fileUploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.add('dragover');
+        });
+
+        fileUploadArea.addEventListener('dragleave', () => {
+            fileUploadArea.classList.remove('dragover');
+        });
+
+        fileUploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            fileUploadArea.classList.remove('dragover');
+            const file = e.dataTransfer.files[0];
+            if (file) {
+                fileInput.files = e.dataTransfer.files;
+                handleFileSelect(file);
+            }
+        });
+
+        function handleFileSelect(file) {
+            if (file) {
+                fileName.textContent = file.name;
+                fileSize.textContent = formatFileSize(file.size);
+                fileSelected.classList.add('show');
+            }
+        }
+
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return Math.round(bytes / Math.pow(k, i) * 100) / 100 + ' ' + sizes[i];
+        }
+
+        fileRemove.addEventListener('click', () => {
+            fileInput.value = '';
+            fileSelected.classList.remove('show');
+        });
+
+        // Form submission
+        uploadForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const formData = new FormData(uploadForm);
+            
+            loadingOverlay.classList.add('show');
+            
+            try {
+                const response = await fetch('/add_doc', {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const result = await response.json();
+                
+                loadingOverlay.classList.remove('show');
+                
+                if (response.ok) {
+                    showAlert('success', `✅ Document "${result.file}" ajouté avec succès!`);
+                    uploadForm.reset();
+                    fileSelected.classList.remove('show');
+                    
+                    setTimeout(() => {
+                        window.location.href = '/admin';
+                    }, 2000);
+                } else {
+                    showAlert('error', '❌ Erreur lors de l\'ajout du document.');
+                }
+            } catch (error) {
+                loadingOverlay.classList.remove('show');
+                showAlert('error', '❌ Erreur de connexion au serveur.');
+                console.error('Error:', error);
+            }
+        });
+
+        function showAlert(type, message) {
+            const alertClass = type === 'success' ? 'alert-success' : 'alert-error';
+            alertContainer.innerHTML = `<div class="alert ${alertClass} show">${message}</div>`;
+            
+            setTimeout(() => {
+                const alert = alertContainer.querySelector('.alert');
+                if (alert) alert.classList.remove('show');
+            }, 5000);
+        }
+    </script>
+</body>
+</html>

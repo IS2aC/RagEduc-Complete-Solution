@@ -1,0 +1,4 @@
+log,date,course,description,path_bucket
+ADD,2025-12-01 12:15:33.911476,Cours de Data Science,Initiation aux fondamentaux de la Data Science,documents-edu/cours ds.pdf
+DELETE,2025-12-01 12:17:12.939913,Cours de Data Science,Initiation aux fondamentaux de la Data Science,documents-edu/cours ds.pdf
+ADD,2025-12-01 12:17:44.972612,Cours de Data Science,Initiation aux fondamentaux de la data science,documents-edu/cours ds.pdf

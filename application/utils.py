@@ -61,3 +61,5 @@ class LoggingLogicFunctions:
 
         # # write as checkpoints.csv
         df_backlog_drop_duplicates.to_csv('checkpoints.csv', index =  False)
+
+        
