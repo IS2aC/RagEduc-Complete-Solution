@@ -44,17 +44,20 @@ class LoggingLogicFunctions:
         # already file will exist
         # read backlog.txt
         df_backlog =  pd.read_csv(BACKLOG_FILE, sep = ',', engine="python")
+        df_backlog_sort_date =  df_backlog.sort_values('date')
 
-        # filter on date
+        # most recent information about path_bucket
         columns_without_date =  ['log', 'course', 'description', 'path_bucket']
-        df_backlog = df_backlog.groupby('date')[columns_without_date].max().reset_index()
+        df_backlog_recent = df_backlog_sort_date.groupby('path_bucket').last().reset_index()
 
         # select columns
-        df_backlog =  df_backlog[columns_without_date]
+        df_backlog_recent =  df_backlog_recent[columns_without_date]
 
-        # drop duplicates
-        df_backlog_drop_duplicates =  df_backlog.drop_duplicates()
+        # # drop duplicates
+        df_backlog_drop_duplicates =  df_backlog_recent.drop_duplicates()
 
-        # write as checkpoints.csv
+        # drop delete
+        df_backlog_drop_duplicates =  df_backlog_drop_duplicates[df_backlog_drop_duplicates['log'] == 'ADD']
+
+        # # write as checkpoints.csv
         df_backlog_drop_duplicates.to_csv('checkpoints.csv', index =  False)
-        

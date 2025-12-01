@@ -44,18 +44,34 @@ async def upload_document(
 
     return {"status": "ok", "file": file.filename}
 
-
-
-@app.put("/update_doc")
-async def update_document(filename: str = Form(...)):
-    return {"status":"updated", "file":filename}
-
-
 @app.delete("/delete_doc")
 async def delete_document(filename: str = Form(...)):
 
+    # check if path_bucket exists
+
     # bucket_path 
     client.remove_object(BUCKET, filename)
+
+    # dataframe_obj from minio
+    dataframe_obj =  pd.DataFrame([{"path_bucket":f"{BUCKET}/{filename}"}])
+
+    # checkpoints table 
+    dataframe_checkpoint =  pd.read_csv('checkpoints.csv')
+
+    # join with checkpoints table
+    dataf =  dataframe_obj.merge(dataframe_checkpoint, how =  'left', on = 'path_bucket')
+
+    # select columns 
+    dataf_dict = dataf[['path_bucket',  'course', 'description']].to_dict(orient="records")[0]
+    # create a DocEdu Oject
+    doc =  DocEduc(course = dataf_dict.get('course'), 
+                description=dataf_dict.get('description'), 
+                path=dataf_dict.get('path_bucket'))
+    
+    # logging delete
+    llf.acting_backlog(document= doc, action= BacklogAction.DELETE.value)
+    # logging checkpoints
+    llf.acting_checkpoints()
     return {"status": "deleted", "file": filename}
 
 
@@ -77,3 +93,10 @@ async def list_documents():
     # return information for frontend
     
     return {"documents":dataf.to_dict(orient="records")}
+
+
+
+
+@app.put("/update_doc")
+async def update_document(filename: str = Form(...)):
+    return {"status":"updated", "file":filename}
