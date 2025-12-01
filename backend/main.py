@@ -63,9 +63,17 @@ async def delete_document(filename: str = Form(...)):
 async def list_documents():
     objects = client.list_objects(BUCKET) 
     # collect data on minio as table ready to make join with checkpoints table
-    dataframe_obj =  pd.DataFrame([{"object_path":  f"{BUCKET}/{obj.object_name}"} for obj in objects])
+    dataframe_obj =  pd.DataFrame([{"path_bucket":  f"{BUCKET}/{obj.object_name}"} for obj in objects])
+
+    # checkpoints table 
+    dataframe_checkpoint =  pd.read_csv('checkpoints.csv')
+
     # join with checkpoints table
+    dataf =  dataframe_obj.merge(dataframe_checkpoint, how =  'left', on = 'path_bucket')
+
+    # delete columns log
+    dataf.drop('log', axis= 1, inplace= True)
 
     # return information for frontend
-
-    return {"message":"ok"}
+    
+    return {"documents":dataf.to_dict(orient="records")}

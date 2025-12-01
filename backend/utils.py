@@ -36,7 +36,7 @@ class LoggingLogicFunctions:
 
 
             date_now =  datetime.now()
-            line = f"{action}, {date_now}, {document.course}, {document.description}, {document.path}\n"
+            line = f"{action},{date_now},{document.course},{document.description},{document.path}\n"
             f.write(line)
 
     @staticmethod
@@ -56,5 +56,5 @@ class LoggingLogicFunctions:
         df_backlog_drop_duplicates =  df_backlog.drop_duplicates()
 
         # write as checkpoints.csv
-        df_backlog_drop_duplicates.to_csv('checkpoints.csv')
+        df_backlog_drop_duplicates.to_csv('checkpoints.csv', index =  False)
         

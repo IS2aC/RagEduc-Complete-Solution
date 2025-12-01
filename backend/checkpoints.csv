@@ -1,0 +1,2 @@
+log,course,description,path_bucket
+ADD,string,string,documents-edu/cours ds.pdf
