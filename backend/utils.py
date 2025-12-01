@@ -1,5 +1,5 @@
 from datetime import datetime
-import os
+import os, pandas as pd
 from enum import Enum
 
 BACKLOG_FILE = "backlog.txt"
@@ -28,7 +28,7 @@ class LoggingLogicFunctions:
     @staticmethod
     def acting_backlog(document:DocEduc, action: BacklogAction):
         file_exists = os.path.isfile(BACKLOG_FILE)
-        headers = "log, date, course, description, path_bucket\n"
+        headers = "log,date,course,description,path_bucket\n"
 
         with open(BACKLOG_FILE, "a") as f:
             if not file_exists:
@@ -41,4 +41,20 @@ class LoggingLogicFunctions:
 
     @staticmethod
     def acting_checkpoints():
-        pass
+        # already file will exist
+        # read backlog.txt
+        df_backlog =  pd.read_csv(BACKLOG_FILE, sep = ',', engine="python")
+
+        # filter on date
+        columns_without_date =  ['log', 'course', 'description', 'path_bucket']
+        df_backlog = df_backlog.groupby('date')[columns_without_date].max().reset_index()
+
+        # select columns
+        df_backlog =  df_backlog[columns_without_date]
+
+        # drop duplicates
+        df_backlog_drop_duplicates =  df_backlog.drop_duplicates()
+
+        # write as checkpoints.csv
+        df_backlog_drop_duplicates.to_csv('checkpoints.csv')
+        

@@ -1,3 +1,0 @@
-2025-11-30 00:22:24, testFile, testFile Description, documents-edu/cours ds.pdf
-2025-11-30 00:30:57, Mathematique, Description test, path_test
-ADD, 2025-11-30 01:28:05.956352, test, test descriiption, documents-edu/cours ds.pdf
